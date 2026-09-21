@@ -56,10 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
         // Create database if not exists
         $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         $pdo->exec("USE `$dbName`");
+        $pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+        $pdo->exec("SET collation_connection = utf8mb4_unicode_ci");
         $logs[] = "✓ Connected to MySQL server and selected database '$dbName'.";
 
-        // 3. Create Tables
+        // 3. Create / Convert Tables to uniform utf8mb4_unicode_ci
         $queries = [
+            "ALTER DATABASE `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+
             "CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -68,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 role ENUM('ADMIN', 'STAFF') NOT NULL DEFAULT 'STAFF',
                 status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS agents (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -78,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS ristourne_rates (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 end_date DATE,
                 is_active BOOLEAN NOT NULL DEFAULT TRUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS purchases (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 FOREIGN KEY (agent_id) REFERENCES agents(id),
                 FOREIGN KEY (ristourne_rate_id) REFERENCES ristourne_rates(id),
                 FOREIGN KEY (created_by) REFERENCES users(id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS crate_returns (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -126,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 is_reversed BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE SET NULL,
                 FOREIGN KEY (created_by) REFERENCES users(id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS goals (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -142,13 +146,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (created_by) REFERENCES users(id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS settings (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 setting_key VARCHAR(100) NOT NULL UNIQUE,
                 setting_value TEXT
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // Convert any existing tables to uniform collation
+            "ALTER TABLE users CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE agents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE ristourne_rates CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE purchases CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE crate_returns CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE goals CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
         ];
 
         foreach ($queries as $sql) {
