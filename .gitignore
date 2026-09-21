@@ -1,0 +1,5 @@
+.env
+/public/uploads/*
+!/public/uploads/.gitkeep
+*.zip
+Mamy_Boy_Hostinger_Upload.zip

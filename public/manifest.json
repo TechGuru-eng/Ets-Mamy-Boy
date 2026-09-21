@@ -1,0 +1,24 @@
+{
+  "name": "ETS MAMY BOY - Beverage & Crate Logistics",
+  "short_name": "Mamy Boy",
+  "description": "Real-time beverage purchases, empty crate liability, and ristourne tracking",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#102033",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
