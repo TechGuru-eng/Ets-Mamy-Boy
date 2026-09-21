@@ -10,13 +10,22 @@ class Database {
 
     public static function getConnection(): PDO {
         if (self::$instance === null) {
+            $credsFile = __DIR__ . '/db_credentials.php';
             $envPath = __DIR__ . '/../.env';
-            $env = (file_exists($envPath)) ? @parse_ini_file($envPath) : [];
             
-            $host = $env['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-            $dbName = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'mamy_boy';
-            $username = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-            $password = $env['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+            if (file_exists($credsFile)) {
+                $creds = require $credsFile;
+                $host = $creds['host'] ?? 'localhost';
+                $dbName = $creds['db_name'] ?? '';
+                $username = $creds['username'] ?? '';
+                $password = $creds['password'] ?? '';
+            } else {
+                $env = (file_exists($envPath)) ? @parse_ini_file($envPath) : [];
+                $host = $env['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+                $dbName = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'mamy_boy';
+                $username = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+                $password = $env['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+            }
 
             try {
                 $dsn = "mysql:host={$host};dbname={$dbName};charset=utf8mb4";

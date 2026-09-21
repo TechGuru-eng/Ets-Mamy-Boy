@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
             throw new Exception("Database Name and Username are required.");
         }
 
-        // 1. Write / Update .env file
+        // 1. Write / Update .env file AND config/db_credentials.php for fail-safe loading
         $envContent = "APP_ENV=production\n";
         $envContent .= "APP_DEBUG=false\n";
         $envContent .= "APP_URL=https://" . ($_SERVER['HTTP_HOST'] ?? 'myhouse237.com') . "\n\n";
@@ -35,8 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
         $envContent .= "DB_USER=" . trim($dbUser) . "\n";
         $envContent .= "DB_PASS=" . trim($dbPass) . "\n";
         
-        file_put_contents($envPath, $envContent);
-        $logs[] = "✓ Configuration saved to .env file.";
+        @file_put_contents($envPath, $envContent);
+
+        $phpCreds = "<?php\nreturn [\n";
+        $phpCreds .= "    'host' => " . var_export(trim($dbHost), true) . ",\n";
+        $phpCreds .= "    'db_name' => " . var_export(trim($dbName), true) . ",\n";
+        $phpCreds .= "    'username' => " . var_export(trim($dbUser), true) . ",\n";
+        $phpCreds .= "    'password' => " . var_export(trim($dbPass), true) . "\n";
+        $phpCreds .= "];\n";
+        file_put_contents(BASE_PATH . '/config/db_credentials.php', $phpCreds);
+
+        $logs[] = "✓ Credentials saved to configuration files (.env & db_credentials.php).";
 
         // 2. Connect to MySQL Server (first without db select to create if missing)
         $dsnNoDb = "mysql:host={$dbHost};charset=utf8mb4";
