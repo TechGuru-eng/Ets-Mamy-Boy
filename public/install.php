@@ -148,6 +148,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
                 FOREIGN KEY (created_by) REFERENCES users(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
+            "CREATE TABLE IF NOT EXISTS ristourne_quarters (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                year INT NOT NULL,
+                quarter TINYINT NOT NULL,
+                status ENUM('PENDING', 'PARTIALLY_PAID', 'PAID') NOT NULL DEFAULT 'PENDING',
+                total_crates INT NOT NULL DEFAULT 0,
+                expected_amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+                actual_amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+                payment_date DATE,
+                notes TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_quarter (year, quarter)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            "CREATE TABLE IF NOT EXISTS monthly_closings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                closing_month DATE NOT NULL UNIQUE,
+                opening_balance INT NOT NULL,
+                crates_purchased INT NOT NULL,
+                empty_crates_returned INT NOT NULL,
+                closing_balance INT NOT NULL,
+                total_purchase_amount DECIMAL(15, 2) NOT NULL,
+                ristourne_earned DECIMAL(15, 2) NOT NULL,
+                transaction_count INT NOT NULL,
+                closed_by INT NOT NULL,
+                closed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (closed_by) REFERENCES users(id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            "CREATE TABLE IF NOT EXISTS audit_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT,
+                action VARCHAR(100) NOT NULL,
+                entity_type VARCHAR(100) NOT NULL,
+                entity_id INT,
+                old_data JSON,
+                new_data JSON,
+                ip_address VARCHAR(45),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
             "CREATE TABLE IF NOT EXISTS settings (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 setting_key VARCHAR(100) NOT NULL UNIQUE,
@@ -158,9 +200,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_and_install'])) 
             "ALTER TABLE users CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE agents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE ristourne_rates CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE ristourne_quarters CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE purchases CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE crate_returns CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE monthly_closings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE goals CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "ALTER TABLE audit_logs CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
             "ALTER TABLE settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
         ];
 

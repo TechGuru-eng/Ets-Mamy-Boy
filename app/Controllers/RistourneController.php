@@ -14,6 +14,19 @@ class RistourneController {
 
     public function index() {
         $db = Database::getConnection();
+        $db->exec("CREATE TABLE IF NOT EXISTS ristourne_quarters (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            year INT NOT NULL,
+            quarter TINYINT NOT NULL,
+            status ENUM('PENDING', 'PARTIALLY_PAID', 'PAID') NOT NULL DEFAULT 'PENDING',
+            total_crates INT NOT NULL DEFAULT 0,
+            expected_amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+            actual_amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+            payment_date DATE,
+            notes TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_quarter (year, quarter)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
         $activeStandardRate = RistourneRate::getActiveForType('STANDARD');
         $activeTopRate      = RistourneRate::getActiveForType('TOP');
