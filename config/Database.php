@@ -10,12 +10,13 @@ class Database {
 
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            $env = parse_ini_file(__DIR__ . '/../.env');
+            $envPath = __DIR__ . '/../.env';
+            $env = (file_exists($envPath)) ? @parse_ini_file($envPath) : [];
             
-            $host = $env['DB_HOST'] ?? 'localhost';
-            $dbName = $env['DB_NAME'] ?? 'mamy_boy';
-            $username = $env['DB_USER'] ?? 'root';
-            $password = $env['DB_PASS'] ?? '';
+            $host = $env['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+            $dbName = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'mamy_boy';
+            $username = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+            $password = $env['DB_PASS'] ?? getenv('DB_PASS') ?: '';
 
             try {
                 $dsn = "mysql:host={$host};dbname={$dbName};charset=utf8mb4";
@@ -28,9 +29,16 @@ class Database {
                 self::$instance = new PDO($dsn, $username, $password, $options);
                 self::ensureSchemaCompatibility();
             } catch (PDOException $e) {
-                // Do not expose detailed DB errors to the user
                 error_log("Connection failed: " . $e->getMessage());
-                die("Database connection failed. Please check the error logs.");
+                // If running install script, throw Exception to allow installer UI to catch & handle credentials
+                if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'install.php') {
+                    throw new PDOException($e->getMessage(), (int)$e->getCode());
+                }
+                die("<div style='font-family:sans-serif;padding:30px;max-width:600px;margin:50px auto;border:1px solid #fecaca;background:#fff5f5;border-radius:8px;'>
+                    <h3 style='color:#dc2626;margin-top:0;'>Database Connection Failed</h3>
+                    <p>Could not connect to MySQL database <strong>" . htmlspecialchars($dbName) . "</strong> on <strong>" . htmlspecialchars($host) . "</strong>.</p>
+                    <p><a href='/install.php' style='display:inline-block;padding:10px 18px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;'>Click Here to Run 1-Click Installer (/install.php)</a></p>
+                </div>");
             }
         }
 
