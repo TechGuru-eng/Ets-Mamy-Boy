@@ -15,6 +15,7 @@ class DashboardController {
         try {
             $stats = CrateReconciliationService::getDashboardStats();
             $monthlyFlow = CrateReconciliationService::getMonthlyFlow();
+            $executive = CrateReconciliationService::getExecutiveSummary();
             $goals = Goal::activeWithProgress(2);
             
             view('dashboard.index', [
@@ -22,6 +23,7 @@ class DashboardController {
                 'title' => 'Dashboard',
                 'stats' => $stats,
                 'monthlyFlow' => $monthlyFlow,
+                'executive' => $executive,
                 'goals' => $goals
             ]);
         } catch (\Exception $e) {

@@ -193,16 +193,149 @@ ob_start();
     </div>
 
     <div class="statement-signature">
-        <div>
-            <span>Prepared by</span>
-            <strong><?= htmlspecialchars($_SESSION['user_name'] ?? 'System User') ?></strong>
+        <div class="position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span>Prepared by (Manager Signature)</span>
+                <div class="no-print d-flex gap-1">
+                    <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="clearSignature('prepCanvas', 'prepImg')"><i class="bi bi-eraser"></i> Clear</button>
+                    <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 small" onclick="saveSignature('prepCanvas', 'prepImg', 'prepSign')"><i class="bi bi-check-lg"></i> Lock</button>
+                </div>
+            </div>
+            <div class="signature-pad-wrapper border rounded p-1 bg-light text-center">
+                <canvas id="prepCanvas" width="280" height="70" class="no-print touch-none cursor-crosshair bg-white rounded border w-100" style="touch-action: none; max-height:70px;"></canvas>
+                <img id="prepImg" src="" class="d-none max-h-70 img-fluid" alt="Manager Signature">
+            </div>
+            <strong class="mt-2 text-dark"><?= htmlspecialchars($_SESSION['user_name'] ?? 'System User') ?></strong>
         </div>
-        <div>
-            <span>Received by</span>
-            <strong><?= htmlspecialchars($supplierName) ?></strong>
+
+        <div class="position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span>Received / Approved by (Supplier Signature)</span>
+                <div class="no-print d-flex gap-1">
+                    <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="clearSignature('recvCanvas', 'recvImg')"><i class="bi bi-eraser"></i> Clear</button>
+                    <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 small" onclick="saveSignature('recvCanvas', 'recvImg', 'recvSign')"><i class="bi bi-check-lg"></i> Lock</button>
+                </div>
+            </div>
+            <div class="signature-pad-wrapper border rounded p-1 bg-light text-center">
+                <canvas id="recvCanvas" width="280" height="70" class="no-print touch-none cursor-crosshair bg-white rounded border w-100" style="touch-action: none; max-height:70px;"></canvas>
+                <img id="recvImg" src="" class="d-none max-h-70 img-fluid" alt="Supplier Signature">
+            </div>
+            <strong class="mt-2 text-dark"><?= htmlspecialchars($supplierName) ?></strong>
         </div>
     </div>
 </div>
+
+<script>
+    function setupTouchSignature(canvasId, storageKey) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        ctx.strokeStyle = '#102033';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            if (e.cancelable) e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            if (e.cancelable) e.preventDefault();
+        }
+
+        function stopDraw() {
+            if (isDrawing) {
+                isDrawing = false;
+                localStorage.setItem(storageKey, canvas.toDataURL());
+            }
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDraw);
+
+        // Restore saved signature if exists
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            const img = new Image();
+            img.onload = function() { ctx.drawImage(img, 0, 0); };
+            img.src = saved;
+        }
+    }
+
+    function clearSignature(canvasId, imgId) {
+        const canvas = document.getElementById(canvasId);
+        const img = document.getElementById(imgId);
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.classList.remove('d-none');
+        }
+        if (img) {
+            img.classList.add('d-none');
+            img.src = '';
+        }
+        localStorage.removeItem(canvasId);
+    }
+
+    function saveSignature(canvasId, imgId, storageKey) {
+        const canvas = document.getElementById(canvasId);
+        const img = document.getElementById(imgId);
+        if (canvas && img) {
+            const dataUrl = canvas.toDataURL();
+            img.src = dataUrl;
+            img.classList.remove('d-none');
+            canvas.classList.add('d-none');
+            localStorage.setItem(storageKey, dataUrl);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setupTouchSignature('prepCanvas', 'prepSign');
+        setupTouchSignature('recvCanvas', 'recvSign');
+
+        // Check if locked images exist
+        ['prepSign', 'recvSign'].forEach(key => {
+            const saved = localStorage.getItem(key);
+            const imgId = key === 'prepSign' ? 'prepImg' : 'recvImg';
+            const canvasId = key === 'prepSign' ? 'prepCanvas' : 'recvCanvas';
+            if (saved) {
+                const img = document.getElementById(imgId);
+                const canvas = document.getElementById(canvasId);
+                if (img && canvas) {
+                    img.src = saved;
+                    img.classList.remove('d-none');
+                    canvas.classList.add('d-none');
+                }
+            }
+        });
+    });
+</script>
 
 <?php
 $content = ob_get_clean();

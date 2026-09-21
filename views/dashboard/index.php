@@ -87,6 +87,74 @@
     </div>
 </div>
 
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-command text-primary me-2"></i>Executive Overview</h6>
+                <span class="badge bg-light text-dark border">Today</span>
+            </div>
+            <div class="card-body">
+                <div class="executive-grid">
+                    <div class="executive-metric">
+                        <span>Today Glass</span>
+                        <strong><?= number_format($executive['today_purchases']['glass_crates'] ?? 0) ?></strong>
+                        <small>crates purchased</small>
+                    </div>
+                    <div class="executive-metric">
+                        <span>Today TOP</span>
+                        <strong><?= number_format($executive['today_purchases']['top_units'] ?? 0) ?></strong>
+                        <small>plastic units</small>
+                    </div>
+                    <div class="executive-metric">
+                        <span>Today Returns</span>
+                        <strong><?= number_format($executive['today_returns']['crates'] ?? 0) ?></strong>
+                        <small>empty crates</small>
+                    </div>
+                    <div class="executive-metric">
+                        <span>Today Value</span>
+                        <strong><?= number_format($executive['today_purchases']['amount'] ?? 0) ?></strong>
+                        <small>FCFA purchases</small>
+                    </div>
+                    <div class="executive-metric">
+                        <span>Ristourne Expected</span>
+                        <strong><?= number_format($executive['expected_ristourne_month'] ?? 0) ?></strong>
+                        <small>FCFA this month</small>
+                    </div>
+                    <div class="executive-metric due">
+                        <span>Still To Collect</span>
+                        <strong><?= number_format($executive['outstanding_ristourne_month'] ?? 0) ?></strong>
+                        <small>FCFA outstanding</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-bell text-warning me-2"></i>Smart Alerts</h6>
+                <span class="badge bg-light text-dark border"><?= count($executive['alerts'] ?? []) ?></span>
+            </div>
+            <div class="card-body">
+                <div class="smart-alert-list">
+                    <?php foreach (($executive['alerts'] ?? []) as $alert): ?>
+                        <div class="smart-alert smart-alert-<?= htmlspecialchars($alert['level']) ?>">
+                            <div class="smart-alert-icon"><i class="bi <?= htmlspecialchars($alert['icon']) ?>"></i></div>
+                            <div>
+                                <strong><?= htmlspecialchars($alert['title']) ?></strong>
+                                <p><?= htmlspecialchars($alert['message']) ?></p>
+                                <a href="<?= htmlspecialchars($alert['action_url']) ?>"><?= htmlspecialchars($alert['action_label']) ?></a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold"><i class="bi bi-bullseye text-primary me-2"></i>Active Goals</h6>
@@ -161,6 +229,49 @@
                     </a>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-people text-primary me-2"></i>Agent Risk Scoreboard</h6>
+        <a href="/agents" class="btn btn-sm btn-outline-primary">View Agents</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Taken</th>
+                        <th>Returned</th>
+                        <th>Balance</th>
+                        <th>Last Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($executive['top_agents'])): ?>
+                        <tr><td colspan="5" class="text-center py-4 text-muted">No agent activity yet.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($executive['top_agents'] as $agent): ?>
+                            <tr>
+                                <td>
+                                    <a class="fw-bold text-dark text-decoration-none" href="/agents/show?id=<?= htmlspecialchars($agent['id']) ?>">
+                                        <?= htmlspecialchars($agent['full_name']) ?>
+                                    </a>
+                                </td>
+                                <td><?= number_format($agent['total_taken']) ?></td>
+                                <td><?= number_format($agent['total_returned']) ?></td>
+                                <td class="<?= (int)$agent['crate_balance'] > 0 ? 'text-danger fw-bold' : 'text-success fw-bold' ?>">
+                                    <?= number_format(abs((int)$agent['crate_balance'])) ?>
+                                </td>
+                                <td><?= $agent['last_activity'] && $agent['last_activity'] !== '1900-01-01' ? date('d/m/Y', strtotime($agent['last_activity'])) : '-' ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
