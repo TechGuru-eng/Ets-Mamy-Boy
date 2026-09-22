@@ -24,7 +24,7 @@ ob_start();
                 <i class="bi bi-funnel"></i> Apply
             </button>
         </form>
-        <button type="button" class="btn btn-sm btn-primary" onclick="window.print()">
+        <button type="button" class="btn btn-sm btn-primary" onclick="triggerPrintReport()">
             <i class="bi bi-printer"></i> Print
         </button>
     </div>

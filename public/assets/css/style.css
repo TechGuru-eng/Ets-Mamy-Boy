@@ -853,15 +853,25 @@ h5,
 
 @media print {
     body {
-        background: #ffffff;
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 12pt !important;
     }
 
     .navbar,
     .sidebar,
     .mobile-bottom-nav,
     .no-print,
-    .alert .btn-close {
+    .alert,
+    .btn-toolbar,
+    .btn-close,
+    #pwaInstallBtn,
+    .modal-backdrop {
         display: none !important;
+    }
+
+    .d-none.d-print-block {
+        display: block !important;
     }
 
     .main-content,
@@ -880,13 +890,37 @@ h5,
     .statement-metric,
     .statement-signature div {
         box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+        page-break-inside: avoid;
     }
 
-    .collection-statement {
-        gap: 1rem;
+    .table-responsive {
+        overflow: visible !important;
+        display: block !important;
+        width: 100% !important;
     }
 
     .table {
+        width: 100% !important;
         min-width: 0 !important;
+        border-collapse: collapse !important;
+    }
+
+    .table th, .table td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #dee2e6 !important;
+        padding: 6px 8px !important;
+    }
+
+    .badge {
+        border: 1px solid #6c757d !important;
+        color: #000000 !important;
+        background: transparent !important;
+    }
+
+    @page {
+        margin: 1.5cm;
+        size: auto;
     }
 }

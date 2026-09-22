@@ -6,7 +6,7 @@
         <p class="page-kicker mb-0">Track empty crates carried, dates, and agent collectors.</p>
     </div>
     <div class="btn-toolbar mb-2 mb-md-0 gap-2 no-print">
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="triggerPrintReport()">
             <i class="bi bi-printer"></i> Print Report
         </button>
         <a href="/crates/export" class="btn btn-sm btn-outline-success">

@@ -199,6 +199,20 @@
                 });
             }
         });
+
+        function triggerPrintReport() {
+            try {
+                window.focus();
+                if (typeof window.print === 'function') {
+                    window.print();
+                } else {
+                    alert('Printing is not directly supported in this browser. Please use your browser menu -> Share/Print to generate a PDF.');
+                }
+            } catch (err) {
+                console.error('Print error:', err);
+                alert('Could not launch print dialog. Please try printing from your browser menu.');
+            }
+        }
     </script>
 </body>
 </html>
