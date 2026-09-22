@@ -5,13 +5,30 @@
         <h1 class="h2 fw-bold mb-1"><i class="bi bi-cart3 text-primary me-2"></i>Purchases History</h1>
         <p class="page-kicker mb-0">Detailed view of all purchases made, dates, day of week, products bought, and delivery agents.</p>
     </div>
-    <div class="btn-toolbar mb-2 mb-md-0 gap-2">
+    <div class="btn-toolbar mb-2 mb-md-0 gap-2 no-print">
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Report
+        </button>
         <a href="/purchases/export" class="btn btn-sm btn-outline-success">
             <i class="bi bi-file-earmark-excel"></i> Export CSV
         </a>
         <a href="/purchases/create" class="btn btn-sm btn-primary">
             <i class="bi bi-plus-lg"></i> Record Purchase
         </a>
+    </div>
+</div>
+
+<!-- Print Only Official Header -->
+<div class="d-none d-print-block mb-4 border-bottom pb-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">ETS MAMY BOY - Purchases History Report</h2>
+            <p class="mb-0 text-muted">Beverage Inventory & Ristourne Ledger</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-dark text-white p-2 mb-1">Official Document</span>
+            <div class="small text-muted">Printed: <?= date('d/m/Y H:i') ?></div>
+        </div>
     </div>
 </div>
 
@@ -71,7 +88,7 @@
 </div>
 
 <!-- Search & Filter Bar -->
-<div class="card border-0 shadow-sm mb-4">
+<div class="card border-0 shadow-sm mb-4 no-print">
     <div class="card-body p-3 bg-light rounded">
         <form method="GET" action="/purchases" class="row g-2 align-items-center">
             <div class="col-md-3">
@@ -119,7 +136,7 @@
                         <th>Total Amount</th>
                         <th>Delivery Agent</th>
                         <th>Recorded By</th>
-                        <th>Actions</th>
+                        <th class="no-print">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,7 +182,7 @@
                                     </a>
                                 </td>
                                 <td><small class="text-muted"><i class="bi bi-person-check me-1"></i><?= htmlspecialchars($purchase['user_name']) ?></small></td>
-                                <td>
+                                <td class="no-print">
                                     <form action="/purchases/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete purchase entry <?= htmlspecialchars($purchase['transaction_number']) ?>?');">
                                         <?= \App\Helpers\CSRFHelper::csrfField() ?>
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($purchase['id']) ?>">
