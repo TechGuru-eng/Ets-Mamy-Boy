@@ -15,13 +15,66 @@ class PurchaseController {
 
     public function index() {
         $db = Purchase::getConnection();
-        $stmt = $db->query("SELECT p.*, a.full_name as agent_name, u.name as user_name FROM purchases p JOIN agents a ON p.agent_id = a.id JOIN users u ON p.created_by = u.id ORDER BY p.purchase_date DESC, p.id DESC LIMIT 50");
+        
+        $agentId = (int)($_GET['agent_id'] ?? 0);
+        $startDate = trim($_GET['start_date'] ?? '');
+        $endDate = trim($_GET['end_date'] ?? '');
+
+        $where = ["p.is_reversed = 0"];
+        $params = [];
+
+        if ($agentId > 0) {
+            $where[] = "p.agent_id = :agent_id";
+            $params['agent_id'] = $agentId;
+        }
+
+        if (!empty($startDate)) {
+            $where[] = "p.purchase_date >= :start_date";
+            $params['start_date'] = $startDate;
+        }
+
+        if (!empty($endDate)) {
+            $where[] = "p.purchase_date <= :end_date";
+            $params['end_date'] = $endDate;
+        }
+
+        $whereClause = implode(" AND ", $where);
+
+        $sql = "SELECT p.*, a.full_name as agent_name, u.name as user_name 
+                FROM purchases p 
+                JOIN agents a ON p.agent_id = a.id 
+                JOIN users u ON p.created_by = u.id 
+                WHERE {$whereClause} 
+                ORDER BY p.purchase_date DESC, p.id DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         $purchases = $stmt->fetchAll();
+
+        // Calculate metrics
+        $totalGlass = 0;
+        $totalTop = 0;
+        $totalAmount = 0.0;
+        foreach ($purchases as $p) {
+            $totalGlass += (int)$p['crates'];
+            $totalTop += (int)$p['top_units'];
+            $totalAmount += (float)$p['amount'];
+        }
+
+        $agents = Agent::allWithBalances();
 
         view('purchases.index', [
             'active_menu' => 'purchases',
-            'title' => 'Purchases',
-            'purchases' => $purchases
+            'title' => 'Purchases History',
+            'purchases' => $purchases,
+            'agents' => $agents,
+            'selected_agent' => $agentId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'total_glass' => $totalGlass,
+            'total_top' => $totalTop,
+            'total_amount' => $totalAmount,
+            'count' => count($purchases)
         ]);
     }
 

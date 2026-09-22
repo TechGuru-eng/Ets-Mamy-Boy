@@ -15,13 +15,60 @@ class CrateReturnController {
 
     public function index() {
         $db = CrateReturn::getConnection();
-        $stmt = $db->query("SELECT c.*, COALESCE(a.full_name, 'Unknown') as agent_name, u.name as user_name FROM crate_returns c LEFT JOIN agents a ON c.agent_id = a.id JOIN users u ON c.created_by = u.id ORDER BY c.return_date DESC, c.id DESC LIMIT 50");
+
+        $agentId = (int)($_GET['agent_id'] ?? 0);
+        $startDate = trim($_GET['start_date'] ?? '');
+        $endDate = trim($_GET['end_date'] ?? '');
+
+        $where = ["c.is_reversed = 0"];
+        $params = [];
+
+        if ($agentId > 0) {
+            $where[] = "c.agent_id = :agent_id";
+            $params['agent_id'] = $agentId;
+        }
+
+        if (!empty($startDate)) {
+            $where[] = "c.return_date >= :start_date";
+            $params['start_date'] = $startDate;
+        }
+
+        if (!empty($endDate)) {
+            $where[] = "c.return_date <= :end_date";
+            $params['end_date'] = $endDate;
+        }
+
+        $whereClause = implode(" AND ", $where);
+
+        $sql = "SELECT c.*, COALESCE(a.full_name, 'Unknown / Unspecified') as agent_name, u.name as user_name 
+                FROM crate_returns c 
+                LEFT JOIN agents a ON c.agent_id = a.id 
+                JOIN users u ON c.created_by = u.id 
+                WHERE {$whereClause} 
+                ORDER BY c.return_date DESC, c.id DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         $returns = $stmt->fetchAll();
+
+        // Calculate metrics
+        $totalCrates = 0;
+        foreach ($returns as $r) {
+            $totalCrates += (int)$r['crates'];
+        }
+
+        $agents = Agent::allWithBalances();
 
         view('crates.index', [
             'active_menu' => 'crates',
-            'title' => 'Empty Crates Returned',
-            'returns' => $returns
+            'title' => 'Empty Crates Carried & Returned History',
+            'returns' => $returns,
+            'agents' => $agents,
+            'selected_agent' => $agentId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'total_crates' => $totalCrates,
+            'count' => count($returns)
         ]);
     }
 
