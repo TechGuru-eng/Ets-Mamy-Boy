@@ -10,13 +10,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Manrope:wght@400;500;600;700;800&family=Roboto+Mono:wght@600;700&display=swap" rel="stylesheet">
-    <!-- PWA Settings for Mobile App Installation & Real-Time Sync -->
+    <!-- Favicon & PWA App Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#102033">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mamy Boy">
-    <link rel="apple-touch-icon" href="/assets/images/icon-192.png">
 
     <!-- Custom Premium CSS -->
     <link href="/assets/css/style.css" rel="stylesheet">
