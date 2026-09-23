@@ -9,10 +9,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Manrope:wght@400;500;600;700;800&family=Roboto+Mono:wght@600;700&display=swap" rel="stylesheet">
     <!-- Favicon & PWA App Icons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png">
-    <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png?v=2">
+    <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png?v=2">
+    <link rel="manifest" href="/manifest.json?v=2">
     <meta name="theme-color" content="#102033">
     <!-- Custom Premium CSS -->
     <link href="/assets/css/style.css" rel="stylesheet">

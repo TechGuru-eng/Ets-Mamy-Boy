@@ -1,8 +1,12 @@
-const CACHE_NAME = 'mamy-boy-v1';
+const CACHE_NAME = 'mamy-boy-v2.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/dashboard',
   '/assets/css/style.css',
+  '/assets/images/icon-192.png?v=2',
+  '/assets/images/icon-512.png?v=2',
+  '/assets/images/apple-touch-icon.png?v=2',
+  '/favicon.ico?v=2',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
